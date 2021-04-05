@@ -1,0 +1,29 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: statping
+  namespace: argocd
+spec:
+  destination:
+    name: ''
+    namespace: production
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: ''
+    repoURL: 'https://k8s-at-home.com/charts'
+    targetRevision: 3.3.1
+    chart: statping
+    helm:
+      parameters:
+        - name: postgresql.persistence.enabled
+          value: 'true'
+        - name: postgresql.postgresqlPassword
+          value: v5oUWKvE8ceeXnfi
+        - name: image.tag
+          value: v0.90.74
+  project: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
