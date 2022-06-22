@@ -6,3 +6,4 @@ metadata:
 kind: Kustomization
 resources:
 - db.yaml
+- meta.yaml

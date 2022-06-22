@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meta
+  namespace: supabase
+spec:
+  selector:
+    matchLabels:
+      app: meta
+  template:
+    metadata:
+      labels:
+        app: meta
+    spec:
+      containers:
+      - name: meta
+        image: supabase/postgres-meta:v0.29.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PG_META_PORT
+          value: "8080"
+        - name: PG_META_DB_HOST
+          value: db.supabase.svc.cluster.local
+        - name: PG_META_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: supabase-env
+              key: POSTGRES_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: meta
+spec:
+  selector:
+    app: meta
+  ports:
+  - port: 8080
+    targetPort: 8080
