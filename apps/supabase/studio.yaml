@@ -1,0 +1,56 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studio
+spec:
+  selector:
+    matchLabels:
+      app: studio
+  template:
+    metadata:
+      labels:
+        app: studio
+    spec:
+      containers:
+      - name: studio
+        image: supabase/studio:latest
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+        env:
+        - name: STUDIO_PG_META_URL
+          value: http://meta.supabase.svc.cluster.local:8080
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: supabase-env
+              key: POSTGRES_PASSWORD
+        - name: SUPABASE_URL
+          value: http://kong.supabase.svc.cluster.local:8000
+        - name: SUPABASE_REST_URL
+          value: ${PUBLIC_REST_URL}
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-env
+              key: ANON_KEY
+        - name: SUPABASE_SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-env
+              key: SERVICE_ROLE_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: studio
+spec:
+  selector:
+    app: studio
+  ports:
+  - port: 3000
+    targetPort: 3000

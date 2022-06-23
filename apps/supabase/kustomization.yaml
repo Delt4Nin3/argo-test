@@ -9,3 +9,4 @@ resources:
 - db.yaml
 - meta.yaml
 - storage.yaml
+- studio.yaml
