@@ -29,11 +29,26 @@ spec:
         volumeMounts:
           - name: postgres-data
             mountPath: /var/lib/postgresql/data
+          - name: init-scripts
+            mountPath: /docker-entrypoint-initdb.d
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
             claimName: postgres-data
-    
+        - name: init-scripts
+          configMap:
+            name: db-init-scripts
+            items:
+            - key: "00-initial-schema.sql"
+              path: "00-initial-schema.sql"
+            - key: "01-auth-schema.sql"
+              path: "01-auth-schema.sql"
+            - key: "02-storage-schema.sql"
+              path: "02-storage-schema.sql"
+            - key: "03-post-setup.sql"
+              path: "03-post-setup.sql"
+            - key: "04-pg-graphql.sql"
+              path: "04-pg-graphql.sql"
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

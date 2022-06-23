@@ -1,0 +1,79 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage
+  namespace: supabase
+spec:
+  selector:
+    matchLabels:
+      app: storage
+  template:
+    metadata:
+      labels:
+        app: storage
+    spec:
+      containers:
+      - name: storage
+        image: supabase/storage-api:v0.10.0
+        env:
+        - name: ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-env
+              key: ANON_KEY
+        - name: SERVICE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-env
+              key: SERVICE_ROLE_KEY
+        - name: POSTGREST_URL
+          value: http://rest:3000
+        - name: PGRST_JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: supabase-env
+              key: JWT_SECRET
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: supabase-env
+              key: DATABASE_URL
+        - name: PGOPTIONS
+          value: -c search_path=storage,public
+        - name: FILE_SIZE_LIMIT
+          value: "52428800"
+        - name: STORAGE_BACKEND
+          value: file
+        - name: FILE_STORAGE_BACKEND_PATH
+          value: /var/lib/storage
+        - name: TENANT_ID
+          value: stub
+          # TODO: https://github.com/supabase/storage-api/issues/55
+        - name: REGION
+          value: stub
+        - name: GLOBAL_S3_BUCKET
+          value: stub
+        volumeMounts:
+          - name: storage-data
+            mountPath: /var/lib/storage
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+      volumes:
+        - name: storage-data
+          persistentVolumeClaim:
+            claimName: storage-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: storage-data
+spec:
+  resources:
+    requests:
+      storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce

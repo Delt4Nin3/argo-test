@@ -7,3 +7,7 @@ indent_style = space
 end_of_line = lf
 tab_width = 4
 indent_size = 4
+
+[*.yaml]
+tab_width = 2
+indent_size = 2
